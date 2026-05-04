@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Professor {
+  id          String   @id @default(cuid())
+  firstName   String
+  lastName    String
+  fullName    String
+  department  String
+  college     String
+  email       String?
+  title       String?
+  sourceUrl   String?
+  status      String   @default("approved")
+  reviews     Review[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([fullName])
+  @@index([department])
+  @@index([status])
+  @@unique([fullName, department])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  reviews       Review[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum ReviewStatus {
+  visible
+  reported
+  hidden
+}
+
+model Review {
+  id                    String    @id @default(cuid())
+  professorId           String
+  userId                String?
+  sport                 String
+  courseTaken           String
+  semesterTaken         String
+  overallRecommendation Int
+  athleteFriendliness   Int
+  flexibility           Int
+  workload              Int
+  attendanceStrictness  Int
+  communication         Int
+  wouldTakeAgain        Boolean
+  comment               String
+  status                ReviewStatus @default(visible)
+  reportReason          String?
+  professor             Professor @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  user                  User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([professorId])
+  @@index([userId])
+  @@index([status])
+  @@unique([userId, professorId, courseTaken])
+}
