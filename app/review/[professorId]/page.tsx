@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { RatingForm } from "@/components/rating-form";
 import { authOptions } from "@/lib/auth";
+import { isBetaReviewModeEnabled } from "@/lib/beta";
 import { getProfessorById } from "@/lib/professors";
 
 type ReviewPageProps = {
@@ -11,6 +12,7 @@ type ReviewPageProps = {
 
 export default async function ReviewPage({ params }: ReviewPageProps) {
   const { professorId } = await params;
+  const betaReviewMode = isBetaReviewModeEnabled();
   const [professor, session] = await Promise.all([
     getProfessorById(professorId),
     getServerSession(authOptions)
@@ -32,8 +34,8 @@ export default async function ReviewPage({ params }: ReviewPageProps) {
         </p>
       </div>
       <div className="mt-6">
-        {session?.user ? (
-          <RatingForm professorId={professor.id} />
+        {session?.user || betaReviewMode ? (
+          <RatingForm professorId={professor.id} betaReviewMode={betaReviewMode && !session?.user} />
         ) : (
           <div className="rounded border border-cypress/10 bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-black text-cypress">Login required</h2>

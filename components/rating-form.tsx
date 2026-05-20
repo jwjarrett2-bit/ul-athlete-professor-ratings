@@ -14,9 +14,10 @@ const ratingFields = [
 
 type RatingFormProps = {
   professorId: string;
+  betaReviewMode?: boolean;
 };
 
-export function RatingForm({ professorId }: RatingFormProps) {
+export function RatingForm({ professorId, betaReviewMode = false }: RatingFormProps) {
   const router = useRouter();
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -58,6 +59,11 @@ export function RatingForm({ professorId }: RatingFormProps) {
         <p className="mt-2 text-sm font-semibold leading-6 text-cypress/60">
           Rate the parts of class that matter during travel weeks, practice blocks, and game days.
         </p>
+        {betaReviewMode ? (
+          <div className="mt-4 rounded border border-vermilion/20 bg-vermilion/5 p-3 text-sm font-bold leading-6 text-cypress">
+            Beta mode is on: reviews can be submitted without Google login while the pilot is being tested.
+          </div>
+        ) : null}
         <div className="mt-4 rounded border border-cypress/10 bg-paper p-3 text-sm font-semibold leading-6 text-cypress/70">
           Keep it useful for teammates: focus on class experience, avoid personal attacks, do not share
           private information, and be honest about what happened.

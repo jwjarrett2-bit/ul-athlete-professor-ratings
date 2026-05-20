@@ -68,6 +68,7 @@ NEXTAUTH_SECRET="random-secret-value"
 GOOGLE_CLIENT_ID="your-google-client-id"
 GOOGLE_CLIENT_SECRET="your-google-client-secret"
 ADMIN_EMAILS="your-email@example.com"
+BETA_REVIEW_MODE="false"
 ```
 
 Notes:
@@ -75,6 +76,7 @@ Notes:
 - `NEXTAUTH_URL` must exactly match the final Vercel site URL.
 - `NEXTAUTH_SECRET` should be a long random value.
 - `ADMIN_EMAILS` can contain multiple emails separated by commas.
+- Set `BETA_REVIEW_MODE` to `true` for a same-day beta if Google login is blocking reviews. Turn it back to `false` when Google login is fixed.
 
 ## 6. Update Google OAuth
 

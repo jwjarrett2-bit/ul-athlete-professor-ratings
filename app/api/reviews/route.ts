@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { isBetaReviewModeEnabled } from "@/lib/beta";
 import { prisma } from "@/lib/prisma";
 
 type ReviewPayload = {
@@ -32,8 +33,9 @@ function cleanOptional(value: unknown) {
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
+  const betaReviewMode = isBetaReviewModeEnabled();
 
-  if (!session?.user?.id) {
+  if (!session?.user?.id && !betaReviewMode) {
     return NextResponse.json({ error: "Log in with Google before submitting a review." }, { status: 401 });
   }
 
@@ -70,14 +72,16 @@ export async function POST(request: Request) {
     );
   }
 
-  const duplicateReview = await prisma.review.findFirst({
-    where: {
-      userId: session.user.id,
-      professorId,
-      courseTaken
-    },
-    select: { id: true }
-  });
+  const duplicateReview = session?.user?.id
+    ? await prisma.review.findFirst({
+        where: {
+          userId: session.user.id,
+          professorId,
+          courseTaken
+        },
+        select: { id: true }
+      })
+    : null;
 
   if (duplicateReview) {
     return NextResponse.json(
@@ -97,7 +101,7 @@ export async function POST(request: Request) {
   await prisma.review.create({
     data: {
       professorId: professor.id,
-      userId: session.user.id,
+      userId: session?.user?.id,
       sport,
       courseTaken,
       semesterTaken,

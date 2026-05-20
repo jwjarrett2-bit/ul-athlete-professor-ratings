@@ -5,6 +5,7 @@ import { AuthButton } from "@/components/auth-button";
 import { Providers } from "@/app/providers";
 import { isAdminEmail } from "@/lib/admin";
 import { authOptions } from "@/lib/auth";
+import { isBetaReviewModeEnabled } from "@/lib/beta";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,6 +20,7 @@ export default async function RootLayout({
 }>) {
   const session = await getServerSession(authOptions);
   const isAdmin = isAdminEmail(session?.user?.email);
+  const betaReviewMode = isBetaReviewModeEnabled();
 
   return (
     <html lang="en">
@@ -44,7 +46,7 @@ export default async function RootLayout({
                 <Link className="rounded bg-cypress px-3 py-2 text-white hover:bg-cypress/90" href="/professors">
                   Find Professors
                 </Link>
-                <AuthButton />
+                <AuthButton betaReviewMode={betaReviewMode} />
               </nav>
             </div>
           </header>
